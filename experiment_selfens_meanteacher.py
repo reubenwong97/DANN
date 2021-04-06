@@ -169,8 +169,8 @@ def experiment(exp, arch, rnd_init, img_size, confidence_thresh, teacher_alpha, 
         progress_bar = tqdm.tqdm
 
 
-    # with torch.cuda.device(device):
-    #     pool = work_pool.WorkerThreadPool(num_threads)
+    with torch.cuda.device(device):
+        pool = work_pool.WorkerThreadPool(num_threads)
 
         n_chn = 0
         half_batch_size = batch_size // 2
@@ -243,8 +243,8 @@ def experiment(exp, arch, rnd_init, img_size, confidence_thresh, teacher_alpha, 
 
         net_class = network_architectures.get_build_fn_for_architecture(arch)
 
-        student_net = net_class(n_classes, img_size, use_dropout, not rnd_init)#.cuda()
-        teacher_net = net_class(n_classes, img_size, use_dropout, not rnd_init)#.cuda()
+        student_net = net_class(n_classes, img_size, use_dropout, not rnd_init).cuda()
+        teacher_net = net_class(n_classes, img_size, use_dropout, not rnd_init).cuda()
         student_params = list(student_net.parameters())
         teacher_params = list(teacher_net.parameters())
         for param in teacher_params:
@@ -379,13 +379,13 @@ def experiment(exp, arch, rnd_init, img_size, confidence_thresh, teacher_alpha, 
 
             return aug_loss, conf_mask, equalise_cls_loss
 
-        _one = torch.autograd.Variable(torch.from_numpy(np.array([1.0]).astype(np.float32)))#.cuda())
+        _one = torch.autograd.Variable(torch.from_numpy(np.array([1.0]).astype(np.float32))).cuda()
 
         def f_train(X_sup, y_sup, X_unsup0, X_unsup1):
-            X_sup = torch.autograd.Variable(torch.from_numpy(X_sup))#.cuda())
-            y_sup = torch.autograd.Variable(torch.from_numpy(y_sup).long())#.cuda())
-            X_unsup0 = torch.autograd.Variable(torch.from_numpy(X_unsup0))#.cuda())
-            X_unsup1 = torch.autograd.Variable(torch.from_numpy(X_unsup1))#.cuda())
+            X_sup = torch.autograd.Variable(torch.from_numpy(X_sup)).cuda()
+            y_sup = torch.autograd.Variable(torch.from_numpy(y_sup).long()).cuda()
+            X_unsup0 = torch.autograd.Variable(torch.from_numpy(X_unsup0)).cuda()
+            X_unsup1 = torch.autograd.Variable(torch.from_numpy(X_unsup1)).cuda()
 
             if pretrained_student_optimizer is not None:
                 pretrained_student_optimizer.zero_grad()
@@ -436,12 +436,12 @@ def experiment(exp, arch, rnd_init, img_size, confidence_thresh, teacher_alpha, 
         print('Compiled training function')
 
         def f_pred_src(X_sup):
-            X_var = torch.autograd.Variable(torch.from_numpy(X_sup))#.cuda())
+            X_var = torch.autograd.Variable(torch.from_numpy(X_sup)).cuda()
             teacher_net.train(mode=False)
             return (F.softmax(teacher_net(X_var)).data.cpu().numpy(),)
 
         def f_pred_tgt(X_sup):
-            X_var = torch.autograd.Variable(torch.from_numpy(X_sup))#.cuda())
+            X_var = torch.autograd.Variable(torch.from_numpy(X_sup)).cuda()
             teacher_net.train(mode=False)
             return (F.softmax(teacher_net(X_var)).data.cpu().numpy(),)
 
@@ -449,7 +449,7 @@ def experiment(exp, arch, rnd_init, img_size, confidence_thresh, teacher_alpha, 
             teacher_net.train(mode=False)
             y_pred_aug = []
             for aug_i in range(len(X_sup)):
-                X_var = torch.autograd.Variable(torch.from_numpy(X_sup[aug_i, ...]))#.cuda())
+                X_var = torch.autograd.Variable(torch.from_numpy(X_sup[aug_i, ...])).cuda()
                 y_pred = F.softmax(teacher_net(X_var)).data.cpu().numpy()
                 y_pred_aug.append(y_pred[None, ...])
             y_pred_aug = np.concatenate(y_pred_aug, axis=0)
