@@ -1,5 +1,0 @@
-numpy
-tables
-scipy
-joblib
-six
