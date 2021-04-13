@@ -424,10 +424,12 @@ def experiment(exp, arch, rnd_init, img_size, confidence_thresh, teacher_alpha, 
 
             mask_count = conf_mask_count.data.item()#.cpu()
 
-            outputs = [float(clf_loss.data.cpu()[0]) * n_samples,
-                       float(unsup_loss.data.cpu()[0]) * n_samples,
-                       mask_count]
-
+            # outputs = [float(clf_loss.data.cpu()[0]) * n_samples,
+            #            float(unsup_loss.data.cpu()[0]) * n_samples,
+            #            mask_count]
+            outputs = [float(clf_loss.data.item()) * n_samples,
+                                float(unsup_loss.data.item()) * n_samples,
+                                mask_count]
             # outputs = [float(clf_loss.data) * n_samples,
             #            float(unsup_loss.data) * n_samples,
             #            mask_count]
